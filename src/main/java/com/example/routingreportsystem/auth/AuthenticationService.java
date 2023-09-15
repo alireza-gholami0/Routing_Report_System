@@ -19,23 +19,19 @@ public class AuthenticationService {
   private final AuthenticationManager authenticationManager;
 
   public AuthResponse register(RegisterRequest request) {
-
-    if(repository.findByEmail(request.email()).isPresent()){
-      throw new RuntimeException("The email entered has already been registered");
-    }
-    else {
-      var user = User.builder()
-              .email(request.email())
-              .password(passwordEncoder.encode(request.password()))
-              .role(request.role())
-              .build();
-      repository.save(user);
-      var jwtToken = jwtService.generateToken(user);
-      return AuthResponse.builder()
-              .token(jwtToken)
-              .build();
-    }
-
+    System.out.println(request.email());
+    repository.findByEmail(request.email()).orElseThrow(()->
+            new RuntimeException("The email entered has already been registered"));
+    var user = User.builder()
+            .email(request.email())
+            .password(passwordEncoder.encode(request.password()))
+            .role(request.role())
+            .build();
+    repository.save(user);
+    var jwtToken = jwtService.generateToken(user);
+    return AuthResponse.builder()
+            .token(jwtToken)
+            .build();
   }
 
   public AuthResponse logIn(LoginRequest request) {
