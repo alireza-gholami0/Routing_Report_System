@@ -12,15 +12,15 @@ import lombok.Setter;
 import org.locationtech.jts.geom.Point;
 
 @Entity
-@DiscriminatorValue("accident")
+@DiscriminatorValue("ACCIDENT")
 @NoArgsConstructor
 @Getter
 @Setter
 public class Accident extends Report {
     private AccidentType accidentType;
 
-    public Accident(Point point, ReportType type, ReportStatus status, User user, AccidentType accidentType) {
-        super(point, type, status, user);
+    public Accident(Point point, User user, AccidentType accidentType) {
+        super(point, ReportStatus.UNKNOWN, user);
         this.accidentType = accidentType;
     }
 }

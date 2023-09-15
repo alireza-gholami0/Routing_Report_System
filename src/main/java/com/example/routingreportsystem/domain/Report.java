@@ -27,19 +27,16 @@ public class Report {
     private LocalDateTime reportedAt;
     @Column(name = "life_time")
     private int lifeTime = 3;
-    @Column(name = "type")
-    private ReportType type;
     @Column(name = "status")
     private ReportStatus status;
     @ManyToOne
-    @JoinColumn(name = "user")
+    @JoinColumn(name = "user_id")
     private User user;
 
-    public Report(Point point, ReportType type, ReportStatus status, User user) {
+    public Report(Point point, ReportStatus status, User user) {
         this.point = point;
         point.setSRID(4326);
         this.reportedAt = LocalDateTime.now();
-        this.type = type;
         this.status = status;
         this.user = user;
     }
