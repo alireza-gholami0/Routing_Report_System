@@ -3,14 +3,12 @@ package com.example.routingreportsystem.domain;
 import com.example.routingreportsystem.myEnum.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Entity
 @Table(name = "user_table")
-@NoArgsConstructor
 @Setter
 @Getter
 public class User {
