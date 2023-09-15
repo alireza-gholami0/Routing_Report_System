@@ -1,9 +1,0 @@
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: true
-  datasource:
-    url: jdbc:postgresql://localhost:5432/routing-report
-    username: postgres
-    password: 123
