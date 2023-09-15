@@ -21,7 +21,7 @@ public class AuthenticationService {
   public AuthResponse register(RegisterRequest request) {
 
     if(repository.findByEmail(request.email()).isPresent()){
-      throw new RuntimeException("The email entered has already been registered");
+      throw new RuntimeException("The email entered has already been registered!");
     }
     else {
       var user = User.builder()
