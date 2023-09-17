@@ -12,7 +12,7 @@ public class TrafficTypeConverter implements AttributeConverter<TrafficType, Int
             return trafficType.getCode();
         }
         catch (RuntimeException e){
-            throw new RuntimeException("Accident Type { " + trafficType.name() + " } Not Found");
+            throw new RuntimeException("Traffic Type { " + trafficType.name() + " } Not Found");
         }
     }
 

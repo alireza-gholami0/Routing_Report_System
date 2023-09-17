@@ -3,11 +3,13 @@ package com.example.routingreportsystem.service;
 import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.User;
 import com.example.routingreportsystem.domain.reportType.Accident;
+import com.example.routingreportsystem.domain.reportType.Camera;
 import com.example.routingreportsystem.domain.reportType.Traffic;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
 import com.example.routingreportsystem.mapper.MapStructReport;
 import com.example.routingreportsystem.myEnum.AccidentType;
+import com.example.routingreportsystem.myEnum.CameraType;
 import com.example.routingreportsystem.myEnum.TrafficType;
 import com.example.routingreportsystem.repository.ReportRepository;
 import org.locationtech.jts.geom.Point;
@@ -48,6 +50,10 @@ public class ReportService {
             case ("TRAFFIC") -> {
                 report = new Traffic(point, user, TrafficType.getByName(request.description()));
                 response = mapStructReport.ReportToDto((Traffic) report);
+            }
+            case ("CAMERA") -> {
+                report = new Camera(point, user, CameraType.getByName(request.description()));
+                response = mapStructReport.ReportToDto((Camera) report);
             }
             default -> throw new RuntimeException("Invalid report type");
         };
