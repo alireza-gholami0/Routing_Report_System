@@ -3,7 +3,7 @@ package com.example.routingreportsystem.myEnum;
 import lombok.Getter;
 
 @Getter
-public enum AccidentType {
+public enum AccidentType  {
     LIGHT(0), HEAVY(1);
     private final int code;
 
@@ -15,6 +15,13 @@ public enum AccidentType {
             case 0 -> AccidentType.LIGHT;
             case 1 -> AccidentType.HEAVY;
             default -> throw new IllegalArgumentException("AccidentType With Code: ("+ code +") Not Available ");
+        };
+    }
+    public static AccidentType getByName(String name){
+        return switch (name){
+            case "LIGHT" -> AccidentType.LIGHT;
+            case "HEAVY" -> AccidentType.HEAVY;
+            default -> throw new IllegalArgumentException("AccidentType With name: ("+ name +") Not Available ");
         };
     }
 }

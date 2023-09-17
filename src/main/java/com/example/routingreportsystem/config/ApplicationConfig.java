@@ -2,6 +2,8 @@ package com.example.routingreportsystem.config;
 
 import com.example.routingreportsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,7 +28,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     private final UserRepository repository;
-
+    @Bean
+    public GeometryFactory geometryFactory(){
+        return new GeometryFactory();
+    }
+    @Bean
+    public WKTReader wktReader(){
+        return new WKTReader();
+    }
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)

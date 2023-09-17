@@ -8,7 +8,12 @@ import jakarta.persistence.Converter;
 public class AccidentTypeConverter implements AttributeConverter<AccidentType, Integer> {
     @Override
     public Integer convertToDatabaseColumn(AccidentType accidentType) {
-        return accidentType.getCode();
+        try {
+            return accidentType.getCode();
+        }
+        catch (RuntimeException e){
+            throw new RuntimeException("Accident Type { " + accidentType.name() + " } Not Found");
+        }
     }
 
     @Override

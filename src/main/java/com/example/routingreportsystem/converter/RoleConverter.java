@@ -8,7 +8,13 @@ import jakarta.persistence.Converter;
 public class RoleConverter implements AttributeConverter<Role, Integer> {
     @Override
     public Integer convertToDatabaseColumn(Role role) {
-        return role.getCode();
+
+        try {
+            return role.getCode();
+        }
+        catch (RuntimeException e){
+            throw new RuntimeException("Role Type { " + role.name() + " } Not Found");
+        }
     }
 
     @Override

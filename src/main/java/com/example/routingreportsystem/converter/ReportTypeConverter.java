@@ -8,7 +8,12 @@ import jakarta.persistence.Converter;
 public class ReportTypeConverter implements AttributeConverter<ReportType, Integer> {
     @Override
     public Integer convertToDatabaseColumn(ReportType reportType) {
-        return reportType.getCode();
+        try {
+            return reportType.getCode();
+        }
+        catch (RuntimeException e){
+            throw new RuntimeException("Report Type { " + reportType.name() + " } Not Found");
+        }
     }
 
     @Override
