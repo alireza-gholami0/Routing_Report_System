@@ -2,10 +2,7 @@ package com.example.routingreportsystem.service;
 
 import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.User;
-import com.example.routingreportsystem.domain.reportType.Accident;
-import com.example.routingreportsystem.domain.reportType.Camera;
-import com.example.routingreportsystem.domain.reportType.Police;
-import com.example.routingreportsystem.domain.reportType.Traffic;
+import com.example.routingreportsystem.domain.reportType.*;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
 import com.example.routingreportsystem.mapper.MapStructReport;
@@ -60,6 +57,10 @@ public class ReportService {
             case ("POLICE") -> {
                 report = new Police(point, user, PoliceType.getByName(request.description()));
                 response = mapStructReport.ReportToDto((Police) report);
+            }
+            case ("BUMP") -> {
+                report = new Bump(point, user);
+                response = mapStructReport.ReportToDto((Bump) report);
             }
             default -> throw new RuntimeException("Invalid report type");
         };

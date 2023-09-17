@@ -1,10 +1,7 @@
 package com.example.routingreportsystem.mapper;
 
 import com.example.routingreportsystem.domain.Report;
-import com.example.routingreportsystem.domain.reportType.Accident;
-import com.example.routingreportsystem.domain.reportType.Camera;
-import com.example.routingreportsystem.domain.reportType.Police;
-import com.example.routingreportsystem.domain.reportType.Traffic;
+import com.example.routingreportsystem.domain.reportType.*;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.myEnum.AccidentType;
 import com.example.routingreportsystem.myEnum.CameraType;
@@ -30,6 +27,9 @@ public interface MapStructReport {
 
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
     ReportDto ReportToDto(Police police);
+
+    @Mapping(target = "point", qualifiedByName = "pointToWkt")
+    ReportDto ReportToDto(Bump bump);
 
     @Named("pointToWkt")
     default String pointToWkt(Point point) {
