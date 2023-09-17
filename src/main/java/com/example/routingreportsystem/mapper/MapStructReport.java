@@ -3,10 +3,12 @@ package com.example.routingreportsystem.mapper;
 import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.reportType.Accident;
 import com.example.routingreportsystem.domain.reportType.Camera;
+import com.example.routingreportsystem.domain.reportType.Police;
 import com.example.routingreportsystem.domain.reportType.Traffic;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.myEnum.AccidentType;
 import com.example.routingreportsystem.myEnum.CameraType;
+import com.example.routingreportsystem.myEnum.PoliceType;
 import com.example.routingreportsystem.myEnum.TrafficType;
 import org.locationtech.jts.geom.Point;
 import org.mapstruct.Mapper;
@@ -26,6 +28,9 @@ public interface MapStructReport {
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
     ReportDto ReportToDto(Camera camera);
 
+    @Mapping(target = "point", qualifiedByName = "pointToWkt")
+    ReportDto ReportToDto(Police police);
+
     @Named("pointToWkt")
     default String pointToWkt(Point point) {
         return point.toText();
@@ -42,4 +47,8 @@ public interface MapStructReport {
     @ValueMapping(source = "SPEED", target = "SPEED")
     @ValueMapping(source = "LIGHT", target = "LIGHT")
     String enumToStr(CameraType cameraType);
+
+    @ValueMapping(source = "HIDDEN", target = "HIDDEN")
+    @ValueMapping(source = "NOT_HIDDEN", target = "NOT_HIDDEN")
+    String enumToStr(PoliceType policeType);
 }
