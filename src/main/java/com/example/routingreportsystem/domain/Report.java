@@ -1,6 +1,5 @@
 package com.example.routingreportsystem.domain;
 
-import com.example.routingreportsystem.domain.reportType.Accident;
 import com.example.routingreportsystem.myEnum.ReportStatus;
 import jakarta.persistence.*;
 import lombok.Getter;

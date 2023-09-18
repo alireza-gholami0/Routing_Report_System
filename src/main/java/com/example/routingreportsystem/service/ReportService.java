@@ -11,11 +11,16 @@ import com.example.routingreportsystem.myEnum.CameraType;
 import com.example.routingreportsystem.myEnum.PoliceType;
 import com.example.routingreportsystem.myEnum.TrafficType;
 import com.example.routingreportsystem.repository.ReportRepository;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ReportService {
@@ -35,6 +40,16 @@ public class ReportService {
     private Point pointFromWKT(String txt){
         try {
             return (Point) wktReader.read(txt);
+        }
+        catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private LineString lineStringFromWKT(String txt){
+        try {
+            LineString lineString = (LineString) wktReader.read(txt);
+            lineString.setSRID(4326);
+            return lineString;
         }
         catch (ParseException e) {
             throw new RuntimeException(e);
@@ -82,5 +97,36 @@ public class ReportService {
         report.setLifeTime(report.getLifeTime()-1);
         reportRepository.save(report);
         return "The Report With Id " + id + " Was Disliked";
+    }
+
+    public List<ReportDto> route(String route) {
+        LineString lineString = lineStringFromWKT(route);
+        List<Report> reports = reportRepository.findRouteReports(lineString, 15.0);
+        List<ReportDto> response = new ArrayList<>();
+        reports.forEach(x->{
+            System.out.println(x.toString());
+            if (x.getReportedAt().plusMinutes(x.getLifeTime()).isBefore(LocalDateTime.now())){
+                switch (x.getType()) {
+                    case ("ACCIDENT") -> {
+                        response.add(mapStructReport.ReportToDto((Accident) x));
+                    }
+                    case ("TRAFFIC") -> {
+                        response.add(mapStructReport.ReportToDto((Traffic) x));
+                    }
+                    case ("CAMERA") -> {
+                        response.add(mapStructReport.ReportToDto((Camera) x));
+                    }
+                    case ("POLICE") -> {
+                        response.add(mapStructReport.ReportToDto((Police) x));
+                    }
+                    case ("BUMP") -> {
+                        response.add(mapStructReport.ReportToDto((Bump) x));
+                    }
+                    default -> throw new RuntimeException("Invalid report type");
+                }
+            }
+        });
+//        reports.forEach(x-> System.out.println(x.toString()));
+        return response;
     }
 }

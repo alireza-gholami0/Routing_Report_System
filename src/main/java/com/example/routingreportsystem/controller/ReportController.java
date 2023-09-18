@@ -1,5 +1,6 @@
 package com.example.routingreportsystem.controller;
 
+import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.User;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/report")
@@ -31,5 +34,9 @@ public class ReportController {
     @PutMapping("/dislike/{id}")
     public ResponseEntity<String> dislikeReport(@PathVariable(name = "id") long id){
         return ResponseEntity.status(HttpStatus.OK).body(service.dislike(id));
+    }
+    @GetMapping("/route")
+    public ResponseEntity<List<ReportDto>> routeReports(@RequestParam(name = "route") String route){
+        return ResponseEntity.status(HttpStatus.OK).body(service.route(route));
     }
 }

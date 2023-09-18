@@ -22,4 +22,5 @@ public class Accident extends Report {
         super(point, ReportStatus.UNKNOWN, user, 5);
         this.description = accidentType;
     }
+
 }
