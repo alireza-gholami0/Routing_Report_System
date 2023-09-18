@@ -28,7 +28,10 @@ public class ReportService {
         this.mapStructReport = mapStructReport;
         this.wktReader = wktReader;
     }
-
+    private Report reportValidation(long id){
+        return reportRepository.findById(id).orElseThrow(()->
+                new RuntimeException("Report Not Found"));
+    }
     private Point pointFromWKT(String txt){
         try {
             return (Point) wktReader.read(txt);
@@ -66,5 +69,18 @@ public class ReportService {
         };
         reportRepository.save(report);
         return response;
+    }
+
+    public String like(long id) {
+        Report report = reportValidation(id);
+        report.setLifeTime(report.getLifeTime()+1);
+        reportRepository.save(report);
+        return "The Report With Id " + id + " Was Liked";
+    }
+    public String dislike(long id) {
+        Report report = reportValidation(id);
+        report.setLifeTime(report.getLifeTime()-1);
+        reportRepository.save(report);
+        return "The Report With Id " + id + " Was Disliked";
     }
 }

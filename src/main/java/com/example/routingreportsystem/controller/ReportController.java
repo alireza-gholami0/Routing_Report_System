@@ -24,4 +24,12 @@ public class ReportController {
     public ResponseEntity<ReportDto> addReport(@RequestBody ReportRequestDto request, @AuthenticationPrincipal User user){
         return ResponseEntity.status(HttpStatus.OK).body(service.createReport(request, user));
     }
+    @PutMapping("/like/{id}")
+    public ResponseEntity<String> likeReport(@PathVariable(name = "id") long id){
+        return ResponseEntity.status(HttpStatus.OK).body(service.like(id));
+    }
+    @PutMapping("/dislike/{id}")
+    public ResponseEntity<String> dislikeReport(@PathVariable(name = "id") long id){
+        return ResponseEntity.status(HttpStatus.OK).body(service.dislike(id));
+    }
 }
