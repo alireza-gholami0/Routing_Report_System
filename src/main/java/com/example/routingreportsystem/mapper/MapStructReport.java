@@ -1,6 +1,5 @@
 package com.example.routingreportsystem.mapper;
 
-import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.reportType.*;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.myEnum.AccidentType;
@@ -18,18 +17,23 @@ import org.springframework.stereotype.Component;
 @Component
 public interface MapStructReport {
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
-    ReportDto ReportToDto(Accident accident);
+    @Mapping(source = "id", target = "id")
+    ReportDto reportToDto(Accident accident);
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
-    ReportDto ReportToDto(Traffic traffic);
+    @Mapping(source = "id", target = "id")
+    ReportDto reportToDto(Traffic traffic);
 
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
-    ReportDto ReportToDto(Camera camera);
+    @Mapping(source = "id", target = "id")
+    ReportDto reportToDto(Camera camera);
 
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
-    ReportDto ReportToDto(Police police);
+    @Mapping(source = "id", target = "id")
+    ReportDto reportToDto(Police police);
 
     @Mapping(target = "point", qualifiedByName = "pointToWkt")
-    ReportDto ReportToDto(Bump bump);
+    @Mapping(source = "id", target = "id")
+    ReportDto reportToDto(Bump bump);
 
     @Named("pointToWkt")
     default String pointToWkt(Point point) {

@@ -1,4 +1,4 @@
-package com.example.routingreportsystem.jwt;
+package com.example.routingreportsystem.config.jwt;
 
 import com.example.routingreportsystem.domain.User;
 import io.jsonwebtoken.*;

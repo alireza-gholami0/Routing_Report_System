@@ -18,10 +18,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @ShellComponent
@@ -39,20 +37,11 @@ public class ReportService {
         return reportRepository.findById(id).orElseThrow(()->
                 new RuntimeException("Report Not Found"));
     }
-    private boolean checkRepeat(List<Report> reports, Long userId, String type) {
-        List<Report> a = reports.stream()
-                .filter(report -> report.getUser().getId().equals(userId) &&
-                        report.getType().equals(type) &&
-                        report.getStatus() == ReportStatus.TERMINATED)
-                .toList();
-        return reports.stream()
-                .anyMatch(report -> report.getUser().getId().equals(userId) &&
-                        report.getType().equals(type) &&
-                        report.getStatus() != ReportStatus.TERMINATED);
-    }
     private Point pointFromWKT(String txt){
         try {
-            return (Point) wktReader.read(txt);
+            Point point = (Point) wktReader.read(txt);
+            point.setSRID(4326);
+            return point;
         }
         catch (ParseException e) {
             throw new RuntimeException(e);
@@ -68,32 +57,55 @@ public class ReportService {
             throw new RuntimeException(e);
         }
     }
+    public List<ReportDto> dispatch(List<Report> reports){
+        List<ReportDto> reportDtos = new ArrayList<>();
+        reports.forEach(x->{
+            switch (x.getType()) {
+                case ("ACCIDENT") -> {
+                    reportDtos.add(mapStructReport.reportToDto((Accident) x));
+                }
+                case ("TRAFFIC") -> {
+                    reportDtos.add(mapStructReport.reportToDto((Traffic) x));
+                }
+                case ("CAMERA") -> {
+                    reportDtos.add(mapStructReport.reportToDto((Camera) x));
+                }
+                case ("POLICE") -> {
+                    reportDtos.add(mapStructReport.reportToDto((Police) x));
+                }
+                case ("BUMP") -> {
+                    reportDtos.add(mapStructReport.reportToDto((Bump) x));
+                }
+                default -> throw new RuntimeException("Invalid report type");
+            }
+        });
+        return reportDtos;
+    }
     public ReportDto createReport(ReportRequestDto request, User user) {
         Report report = null;
         ReportDto response = null;
         Point point = pointFromWKT(request.point());
-        point.setSRID(4326);
         if(reportRepository.checkRepeat(user, point, request.type()).isEmpty()){
             switch (request.type()) {
                 case ("ACCIDENT") -> {
                     report = new Accident(point, user, AccidentType.getByName(request.description()));
-                    response = mapStructReport.ReportToDto((Accident) report);
+                    response = mapStructReport.reportToDto((Accident) report);
                 }
                 case ("TRAFFIC") -> {
                     report = new Traffic(point, user, TrafficType.getByName(request.description()));
-                    response = mapStructReport.ReportToDto((Traffic) report);
+                    response = mapStructReport.reportToDto((Traffic) report);
                 }
                 case ("CAMERA") -> {
                     report = new Camera(point, user, CameraType.getByName(request.description()));
-                    response = mapStructReport.ReportToDto((Camera) report);
+                    response = mapStructReport.reportToDto((Camera) report);
                 }
                 case ("POLICE") -> {
                     report = new Police(point, user, PoliceType.getByName(request.description()));
-                    response = mapStructReport.ReportToDto((Police) report);
+                    response = mapStructReport.reportToDto((Police) report);
                 }
                 case ("BUMP") -> {
                     report = new Bump(point, user);
-                    response = mapStructReport.ReportToDto((Bump) report);
+                    response = mapStructReport.reportToDto((Bump) report);
                 }
                 default -> throw new RuntimeException("Invalid report type");
             };
@@ -103,8 +115,6 @@ public class ReportService {
         reportRepository.save(report);
         return response;
     }
-
-
 
     public String like(long id) {
         Report report = reportValidation(id);
@@ -122,31 +132,7 @@ public class ReportService {
     public List<ReportDto> route(String route) {
         LineString lineString = lineStringFromWKT(route);
         List<Report> reports = reportRepository.findRouteReports(lineString, 15.0);
-        List<ReportDto> response = new ArrayList<>();
-        reports.forEach(x->{
-            System.out.println(x.toString());
-            if (x.getReportedAt().plusMinutes(x.getLifeTime()).isBefore(LocalDateTime.now())){
-                switch (x.getType()) {
-                    case ("ACCIDENT") -> {
-                        response.add(mapStructReport.ReportToDto((Accident) x));
-                    }
-                    case ("TRAFFIC") -> {
-                        response.add(mapStructReport.ReportToDto((Traffic) x));
-                    }
-                    case ("CAMERA") -> {
-                        response.add(mapStructReport.ReportToDto((Camera) x));
-                    }
-                    case ("POLICE") -> {
-                        response.add(mapStructReport.ReportToDto((Police) x));
-                    }
-                    case ("BUMP") -> {
-                        response.add(mapStructReport.ReportToDto((Bump) x));
-                    }
-                    default -> throw new RuntimeException("Invalid report type");
-                }
-            }
-        });
-        return response;
+        return dispatch(reports);
     }
 
     public String adminValidate(long id, boolean status) {
@@ -161,54 +147,12 @@ public class ReportService {
 
     public List<ReportDto> getAll() {
         List<Report> reports = reportRepository.findAll();
-        List<ReportDto> response = new ArrayList<>();
-        reports.forEach(x->{
-            switch (x.getType()) {
-                case ("ACCIDENT") -> {
-                    response.add(mapStructReport.ReportToDto((Accident) x));
-                }
-                case ("TRAFFIC") -> {
-                    response.add(mapStructReport.ReportToDto((Traffic) x));
-                }
-                case ("CAMERA") -> {
-                    response.add(mapStructReport.ReportToDto((Camera) x));
-                }
-                case ("POLICE") -> {
-                    response.add(mapStructReport.ReportToDto((Police) x));
-                }
-                case ("BUMP") -> {
-                    response.add(mapStructReport.ReportToDto((Bump) x));
-                }
-                default -> throw new RuntimeException("Invalid report type");
-            }
-        });
-        return response;
+        return dispatch(reports);
     }
 
     public List<ReportDto> getUnknowns() {
         List<Report> reports = reportRepository.findUnknowns();
-        List<ReportDto> response = new ArrayList<>();
-        reports.forEach(x->{
-            switch (x.getType()) {
-                case ("ACCIDENT") -> {
-                    response.add(mapStructReport.ReportToDto((Accident) x));
-                }
-                case ("TRAFFIC") -> {
-                    response.add(mapStructReport.ReportToDto((Traffic) x));
-                }
-                case ("CAMERA") -> {
-                    response.add(mapStructReport.ReportToDto((Camera) x));
-                }
-                case ("POLICE") -> {
-                    response.add(mapStructReport.ReportToDto((Police) x));
-                }
-                case ("BUMP") -> {
-                    response.add(mapStructReport.ReportToDto((Bump) x));
-                }
-                default -> throw new RuntimeException("Invalid report type");
-            }
-        });
-        return response;
+        return dispatch(reports);
     }
     @Scheduled(fixedRate = 60000)
     @ShellMethod(value = "update_status",key = "us")

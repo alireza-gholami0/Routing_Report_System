@@ -2,7 +2,7 @@ package com.example.routingreportsystem.auth;
 
 
 import com.example.routingreportsystem.domain.User;
-import com.example.routingreportsystem.jwt.JwtService;
+import com.example.routingreportsystem.config.jwt.JwtService;
 import com.example.routingreportsystem.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

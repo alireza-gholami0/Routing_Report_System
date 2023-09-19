@@ -1,6 +1,6 @@
 package com.example.routingreportsystem.config;
 
-import com.example.routingreportsystem.jwt.JwtTokenFilter;
+import com.example.routingreportsystem.config.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
