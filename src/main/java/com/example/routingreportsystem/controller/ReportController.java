@@ -9,6 +9,7 @@ import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,6 @@ public class ReportController {
     public ResponseEntity<String> checkReport(@PathVariable long id, @PathVariable boolean status){
         return ResponseEntity.status(HttpStatus.OK).body(service.check(id, status));
     }
-
     @PostMapping("/add")
     public ResponseEntity<ReportDto> addReport(@RequestBody ReportRequestDto request, @AuthenticationPrincipal User user){
         return ResponseEntity.status(HttpStatus.OK).body(service.createReport(request, user));

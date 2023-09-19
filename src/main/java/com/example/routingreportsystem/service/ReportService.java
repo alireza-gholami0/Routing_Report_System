@@ -13,6 +13,9 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@ShellComponent
 public class ReportService {
     private final ReportRepository<Report> reportRepository;
     private final MapStructReport mapStructReport;
@@ -186,5 +190,10 @@ public class ReportService {
             }
         });
         return response;
+    }
+    @Scheduled(fixedRate = 60000)
+    @ShellMethod(value = "update_status",key = "us")
+    public void updateStatus() {
+        reportRepository.updateStatus();
     }
 }
