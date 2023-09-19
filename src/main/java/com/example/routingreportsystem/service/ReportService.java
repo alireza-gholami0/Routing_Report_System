@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @ShellComponent
@@ -37,6 +38,17 @@ public class ReportService {
     private Report reportValidation(long id){
         return reportRepository.findById(id).orElseThrow(()->
                 new RuntimeException("Report Not Found"));
+    }
+    private boolean checkRepeat(List<Report> reports, Long userId, String type) {
+        List<Report> a = reports.stream()
+                .filter(report -> report.getUser().getId().equals(userId) &&
+                        report.getType().equals(type) &&
+                        report.getStatus() == ReportStatus.TERMINATED)
+                .toList();
+        return reports.stream()
+                .anyMatch(report -> report.getUser().getId().equals(userId) &&
+                        report.getType().equals(type) &&
+                        report.getStatus() != ReportStatus.TERMINATED);
     }
     private Point pointFromWKT(String txt){
         try {
@@ -60,32 +72,39 @@ public class ReportService {
         Report report = null;
         ReportDto response = null;
         Point point = pointFromWKT(request.point());
-        switch (request.type()) {
-            case ("ACCIDENT") -> {
-                report = new Accident(point, user, AccidentType.getByName(request.description()));
-                response = mapStructReport.ReportToDto((Accident) report);
-            }
-            case ("TRAFFIC") -> {
-                report = new Traffic(point, user, TrafficType.getByName(request.description()));
-                response = mapStructReport.ReportToDto((Traffic) report);
-            }
-            case ("CAMERA") -> {
-                report = new Camera(point, user, CameraType.getByName(request.description()));
-                response = mapStructReport.ReportToDto((Camera) report);
-            }
-            case ("POLICE") -> {
-                report = new Police(point, user, PoliceType.getByName(request.description()));
-                response = mapStructReport.ReportToDto((Police) report);
-            }
-            case ("BUMP") -> {
-                report = new Bump(point, user);
-                response = mapStructReport.ReportToDto((Bump) report);
-            }
-            default -> throw new RuntimeException("Invalid report type");
-        };
+        point.setSRID(4326);
+        if(reportRepository.checkRepeat(user, point, request.type()).isEmpty()){
+            switch (request.type()) {
+                case ("ACCIDENT") -> {
+                    report = new Accident(point, user, AccidentType.getByName(request.description()));
+                    response = mapStructReport.ReportToDto((Accident) report);
+                }
+                case ("TRAFFIC") -> {
+                    report = new Traffic(point, user, TrafficType.getByName(request.description()));
+                    response = mapStructReport.ReportToDto((Traffic) report);
+                }
+                case ("CAMERA") -> {
+                    report = new Camera(point, user, CameraType.getByName(request.description()));
+                    response = mapStructReport.ReportToDto((Camera) report);
+                }
+                case ("POLICE") -> {
+                    report = new Police(point, user, PoliceType.getByName(request.description()));
+                    response = mapStructReport.ReportToDto((Police) report);
+                }
+                case ("BUMP") -> {
+                    report = new Bump(point, user);
+                    response = mapStructReport.ReportToDto((Bump) report);
+                }
+                default -> throw new RuntimeException("Invalid report type");
+            };
+        }
+        else throw new RuntimeException("The received report is duplicated");
+
         reportRepository.save(report);
         return response;
     }
+
+
 
     public String like(long id) {
         Report report = reportValidation(id);
@@ -130,7 +149,7 @@ public class ReportService {
         return response;
     }
 
-    public String check(long id, boolean status) {
+    public String adminValidate(long id, boolean status) {
         Report report = reportValidation(id);
         if (status){
             report.setStatus(ReportStatus.ACCEPTED);

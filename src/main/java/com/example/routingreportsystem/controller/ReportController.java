@@ -1,6 +1,5 @@
 package com.example.routingreportsystem.controller;
 
-import com.example.routingreportsystem.domain.Report;
 import com.example.routingreportsystem.domain.User;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
@@ -9,8 +8,6 @@ import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +34,7 @@ public class ReportController {
     @PutMapping("/check/{id}/{status}")
     @RolesAllowed("ADMIN")
     public ResponseEntity<String> checkReport(@PathVariable long id, @PathVariable boolean status){
-        return ResponseEntity.status(HttpStatus.OK).body(service.check(id, status));
+        return ResponseEntity.status(HttpStatus.OK).body(service.adminValidate(id, status));
     }
     @PostMapping("/add")
     public ResponseEntity<ReportDto> addReport(@RequestBody ReportRequestDto request, @AuthenticationPrincipal User user){
