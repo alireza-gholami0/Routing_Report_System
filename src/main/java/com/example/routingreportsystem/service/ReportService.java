@@ -6,10 +6,7 @@ import com.example.routingreportsystem.domain.reportType.*;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
 import com.example.routingreportsystem.mapper.MapStructReport;
-import com.example.routingreportsystem.myEnum.AccidentType;
-import com.example.routingreportsystem.myEnum.CameraType;
-import com.example.routingreportsystem.myEnum.PoliceType;
-import com.example.routingreportsystem.myEnum.TrafficType;
+import com.example.routingreportsystem.myEnum.*;
 import com.example.routingreportsystem.repository.ReportRepository;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -126,7 +123,68 @@ public class ReportService {
                 }
             }
         });
-//        reports.forEach(x-> System.out.println(x.toString()));
+        return response;
+    }
+
+    public String check(long id, boolean status) {
+        Report report = reportValidation(id);
+        if (status){
+            report.setStatus(ReportStatus.ACCEPTED);
+            reportRepository.save(report);
+        }
+        else reportRepository.delete(report);
+        return "The Report Was Validated";
+    }
+
+    public List<ReportDto> getAll() {
+        List<Report> reports = reportRepository.findAll();
+        List<ReportDto> response = new ArrayList<>();
+        reports.forEach(x->{
+            switch (x.getType()) {
+                case ("ACCIDENT") -> {
+                    response.add(mapStructReport.ReportToDto((Accident) x));
+                }
+                case ("TRAFFIC") -> {
+                    response.add(mapStructReport.ReportToDto((Traffic) x));
+                }
+                case ("CAMERA") -> {
+                    response.add(mapStructReport.ReportToDto((Camera) x));
+                }
+                case ("POLICE") -> {
+                    response.add(mapStructReport.ReportToDto((Police) x));
+                }
+                case ("BUMP") -> {
+                    response.add(mapStructReport.ReportToDto((Bump) x));
+                }
+                default -> throw new RuntimeException("Invalid report type");
+            }
+        });
+        return response;
+    }
+
+    public List<ReportDto> getUnknowns() {
+        List<Report> reports = reportRepository.findUnknowns();
+        List<ReportDto> response = new ArrayList<>();
+        reports.forEach(x->{
+            switch (x.getType()) {
+                case ("ACCIDENT") -> {
+                    response.add(mapStructReport.ReportToDto((Accident) x));
+                }
+                case ("TRAFFIC") -> {
+                    response.add(mapStructReport.ReportToDto((Traffic) x));
+                }
+                case ("CAMERA") -> {
+                    response.add(mapStructReport.ReportToDto((Camera) x));
+                }
+                case ("POLICE") -> {
+                    response.add(mapStructReport.ReportToDto((Police) x));
+                }
+                case ("BUMP") -> {
+                    response.add(mapStructReport.ReportToDto((Bump) x));
+                }
+                default -> throw new RuntimeException("Invalid report type");
+            }
+        });
         return response;
     }
 }

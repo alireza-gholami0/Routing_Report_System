@@ -11,6 +11,14 @@ import java.util.List;
 
 @Repository
 public interface ReportRepository<T extends Report> extends JpaRepository<Report, Long> {
-    @Query(value = "SELECT r FROM Report r WHERE ST_DWithin(st_transform(r.point, 3857), st_transform(:lineString, 3857), :distance) = true AND r.status=1")
+    @Query(value = """
+            SELECT r FROM Report r
+        WHERE ST_DWithin(st_transform(r.point, 3857), st_transform(:lineString, 3857), :distance) = true AND r.status=1
+    """)
     List<Report> findRouteReports(@Param("lineString") LineString lineString, @Param("distance") double distance);
+    @Query("""
+        SELECT r FROM Report r
+        WHERE r.status = 0
+        """)
+    List<Report> findUnknowns();
 }

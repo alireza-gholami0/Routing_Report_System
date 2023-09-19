@@ -5,6 +5,7 @@ import com.example.routingreportsystem.domain.User;
 import com.example.routingreportsystem.dto.ReportDto;
 import com.example.routingreportsystem.dto.ReportRequestDto;
 import com.example.routingreportsystem.service.ReportService;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,21 @@ public class ReportController {
     @Autowired
     public ReportController(ReportService service) {
         this.service = service;
+    }
+    @GetMapping("get-all")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity<List<ReportDto>> getAll(){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getAll());
+    }
+    @GetMapping("get-unknowns")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity<List<ReportDto>> getUnknowns(){
+        return ResponseEntity.status(HttpStatus.OK).body(service.getUnknowns());
+    }
+    @PutMapping("/check/{id}/{status}")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity<String> checkReport(@PathVariable long id, @PathVariable boolean status){
+        return ResponseEntity.status(HttpStatus.OK).body(service.check(id, status));
     }
 
     @PostMapping("/add")
