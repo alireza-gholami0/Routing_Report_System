@@ -8,10 +8,13 @@ import com.example.routingreportsystem.dto.ReportRequestDto;
 import com.example.routingreportsystem.mapper.MapStructReport;
 import com.example.routingreportsystem.myEnum.*;
 import com.example.routingreportsystem.repository.ReportRepository;
+import jakarta.transaction.Transactional;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.shell.standard.ShellComponent;
@@ -27,12 +30,16 @@ public class ReportService {
     private final ReportRepository<Report> reportRepository;
     private final MapStructReport mapStructReport;
     private final WKTReader wktReader;
+    private final RedissonClient redissonClient;
+
     @Autowired
-    public ReportService(ReportRepository<Report> reportRepository, MapStructReport mapStructReport, WKTReader wktReader) {
+    public ReportService(ReportRepository<Report> reportRepository, MapStructReport mapStructReport, WKTReader wktReader, RedissonClient redissonClient) {
         this.reportRepository = reportRepository;
         this.mapStructReport = mapStructReport;
         this.wktReader = wktReader;
+        this.redissonClient = redissonClient;
     }
+
     private Report reportValidation(long id){
         return reportRepository.findById(id).orElseThrow(()->
                 new RuntimeException("Report Not Found"));
@@ -81,6 +88,7 @@ public class ReportService {
         });
         return reportDtos;
     }
+    @Transactional
     public ReportDto createReport(ReportRequestDto request, User user) {
         Report report = null;
         ReportDto response = null;
@@ -111,21 +119,33 @@ public class ReportService {
             };
         }
         else throw new RuntimeException("The received report is duplicated");
-
+        RLock lock = redissonClient.getFairLock(
+                "lock"+ report.getPoint().toString());
+        lock.lock();
         reportRepository.save(report);
+        lock.unlock();
         return response;
     }
-
+    @Transactional
     public String like(long id) {
         Report report = reportValidation(id);
         report.setLifeTime(report.getLifeTime()+1);
+        RLock lock = redissonClient.getFairLock(
+                "lock"+ report.getPoint().toString());
+        lock.lock();
         reportRepository.save(report);
+        lock.unlock();
         return "The Report With Id " + id + " Was Liked";
     }
+    @Transactional
     public String dislike(long id) {
         Report report = reportValidation(id);
         report.setLifeTime(report.getLifeTime()-1);
+        RLock lock = redissonClient.getFairLock(
+                "lock"+ report.getPoint().toString());
+        lock.lock();
         reportRepository.save(report);
+        lock.unlock();
         return "The Report With Id " + id + " Was Disliked";
     }
 
@@ -134,14 +154,18 @@ public class ReportService {
         List<Report> reports = reportRepository.findRouteReports(lineString, 15.0);
         return dispatch(reports);
     }
-
+    @Transactional
     public String adminValidate(long id, boolean status) {
         Report report = reportValidation(id);
+        RLock lock = redissonClient.getFairLock(
+                "lock"+ report.getPoint().toString());
+        lock.lock();
         if (status){
             report.setStatus(ReportStatus.ACCEPTED);
             reportRepository.save(report);
         }
         else reportRepository.delete(report);
+        lock.unlock();
         return "The Report Was Validated";
     }
 
@@ -154,6 +178,7 @@ public class ReportService {
         List<Report> reports = reportRepository.findUnknowns();
         return dispatch(reports);
     }
+    @Transactional
     @Scheduled(fixedRate = 60000)
     @ShellMethod(value = "update_status",key = "us")
     public void updateStatus() {
