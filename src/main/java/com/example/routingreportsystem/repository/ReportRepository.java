@@ -24,7 +24,7 @@ public interface ReportRepository<T extends Report> extends JpaRepository<Report
     List<Report> checkRepeat(@Param("user") User user, @Param("point") Point point, @Param("type") String type);
 
     @Query(value = """
-            SELECT r FROM report r
+            SELECT r.* FROM report r
         WHERE ST_DWithin(st_transform(r.point, 3857), st_transform(:lineString, 3857), :distance) = true AND r.status=1
         AND (r.reported_at + (INTERVAL '1 minute' * r.life_time)) <= NOW()
     """, nativeQuery = true)
